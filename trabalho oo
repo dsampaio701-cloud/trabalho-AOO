@@ -12,3 +12,126 @@ class Usuario:
     def atualizarDados(self, nome, email):
         self.nome = nome
         self.email = email
+-------------------------------------------------------------
+
+class Livro:
+    def __init__(self, idLivro, titulo, autor, isbn):
+        self.idLivro = idLivro
+        self.titulo = titulo
+        self.autor = autor
+        self.isbn = isbn
+        self.statusDisponibilidade = "Disponível"
+        self.emprestimos = []
+
+    def cadastrarLivro(self):
+        print("Livro cadastrado:", self.titulo)
+
+    def consultarDisponibilidade(self):
+        return self.statusDisponibilidade == "Disponível"
+
+    def atualizarStatus(self, novoStatus):
+        self.statusDisponibilidade = novoStatus
+
+-------------------------------------------------------------
+
+
+from datetime import date, timedelta
+
+
+class Emprestimo:
+    def __init__(self, idEmprestimo, usuario, livro):
+        self.idEmprestimo = idEmprestimo
+        self.usuario = usuario
+        self.livro = livro
+        self.dataEmprestimo = None
+        self.dataDevolucaoPrevista = None
+        self.dataDevolucaoReal = None
+        self.status = None
+
+    def realizarEmprestimo(self):
+        if not self.livro.consultarDisponibilidade():
+            raise ValueError("Livro indisponível")
+        self.dataEmprestimo = date.today()
+        self.dataDevolucaoPrevista = self.dataEmprestimo + timedelta(days=7)
+        self.status = "Ativo"
+        self.livro.atualizarStatus("Emprestado")
+        self.usuario.emprestimos.append(self)
+        self.livro.emprestimos.append(self)
+
+    def registrarDevolucao(self):
+        self.dataDevolucaoReal = date.today()
+        self.status = "Devolvido"
+        self.livro.atualizarStatus("Disponível")
+
+-------------------------------------------------------------------------------
+
+
+from usuario import Usuario
+from livro import Livro
+from emprestimo import Emprestimo
+
+usuario = Usuario(1, "Ana", "2024001", "ana@email.com")
+usuario.cadastrarUsuario()
+
+livro = Livro(1, "Dom Casmurro", "Machado de Assis", "123456")
+livro.cadastrarLivro()
+
+emprestimo = Emprestimo(1, usuario, livro)
+emprestimo.realizarEmprestimo()
+print("Status do empréstimo:", emprestimo.status)
+print("Livro disponível?", livro.consultarDisponibilidade())
+
+emprestimo.registrarDevolucao()
+print("Status do empréstimo:", emprestimo.status)
+print("Livro disponível?", livro.consultarDisponibilidade())
+
+-----------------------------------------------------------------------------------
+
+
+# Sistema de Biblioteca
+
+## Objetivo
+Sistema de biblioteca em Python, desenvolvido a partir de um diagrama de classes UML com as classes **Usuario**, **Livro** e **Emprestimo**.
+
+Funcionalidades implementadas:
+- Cadastro de usuário e de livro
+- Atualização de dados do usuário
+- Consulta de disponibilidade e atualização de status do livro
+- Realização de empréstimo (somente se o livro estiver disponível)
+- Registro de devolução
+
+## Modelagem
+- Um **Usuario** realiza 0..* **Emprestimos**
+- Um **Livro** integra 0..* **Emprestimos**
+
+## Tecnologias
+- Python 3
+- unittest (testes)
+- Git e GitHub (versionamento)
+
+## Estrutura do projeto
+```
+├── usuario.py            # classe Usuario
+├── livro.py              # classe Livro
+├── emprestimo.py         # classe Emprestimo
+├── main.py               # exemplo de uso do sistema
+└── tests/
+    ├── test_unidade.py       # teste de unidade (Livro)
+    └── test_integracao.py    # teste de integração (empréstimo e devolução)
+```
+
+## Como executar
+1. Clone o repositório:
+```
+git clone <URL-DO-REPOSITORIO>
+cd <NOME-DA-PASTA>
+```
+2. Execute o programa:
+```
+python main.py
+```
+
+## Como rodar os testes
+```
+python -m unittest discover -s tests
+```
